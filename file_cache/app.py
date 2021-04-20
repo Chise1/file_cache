@@ -1,7 +1,10 @@
 from fastapi import FastAPI, File, UploadFile
 from pydantic import BaseModel
 
-from .file_path import default_file_path, get_file_path
+from file_cache import settings
+
+if settings.CACHE == "MEMORY":
+    from file_cache.memory_cache import default_file_path, get_file_path
 
 app = FastAPI(title="文件缓存系统")
 
@@ -27,3 +30,9 @@ async def write_file(project_id: str, file: UploadFile = File(...,)):
 async def file_path(project_id: str, file_id: str):
     file_path = await get_file_path(project_id, file_id)
     return FilePath(file_path=file_path)
+
+
+if __name__ == "__main__":
+    import uvicorn
+
+    uvicorn.run(app)

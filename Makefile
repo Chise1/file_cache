@@ -1,5 +1,5 @@
 checkfiles = file_cache/ tests/ conftest.py
-black_opts = -l 100 -t py38
+black_opts = -l 80 -t py38
 py_warn = PYTHONDEVMODE=1
 test_settings = SETTINGS_MODULE=tests.settings
 

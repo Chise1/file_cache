@@ -9,16 +9,17 @@ from multiprocessing import Process, Queue
 from typing import Dict
 
 import aiofiles
-from fast_tmp.conf import settings
 from fastapi import UploadFile
 
+from file_cache import settings
+
 PROJECT_FILE_DICT: Dict[str, Dict[str, str]] = {}
-d1, d2 = Queue()
+queue = Queue()
 
 
 def remove_file():
     while True:
-        file_path = d2.get()
+        file_path = queue.get()
         # file_path = PROJECT_FILE_DICT[project_id].pop(file_id)['path']
         os.remove(file_path)
 
@@ -28,10 +29,10 @@ p.start()
 
 
 async def wait_remove_file(project_id, file_id):
-    await asyncio.sleep(settings.EXTRA_SETTINGS)
+    await asyncio.sleep(int(settings.EXPIRE_TIME.seconds))
     file_path = PROJECT_FILE_DICT[project_id].pop(file_id)
     if file_path:
-        d1.set(file_path)
+        queue.put(file_path)
     else:
         pass
 
@@ -46,7 +47,7 @@ async def default_file_path(project_id: str, file: UploadFile) -> str:
 
     file_id = str(uuid.uuid4())
     file_path = os.path.join(
-        settings.EXTRA_SETTINGS["MEDIA_ROOT"],
+        settings.MEDIA_ROOT,
         project_id,
         str(datetime.datetime.utcnow().date()),
         file_id + "." + file.filename.split(".")[-1],
@@ -55,10 +56,16 @@ async def default_file_path(project_id: str, file: UploadFile) -> str:
         PROJECT_FILE_DICT[project_id][file_id] = file_path
     else:
         PROJECT_FILE_DICT[project_id] = {file_id: file_path}
+
+    file_dir, file_name = os.path.split(file_path)
+    file_dir = os.path.abspath(file_dir)
+    print(os.path.exists(file_dir))
+    if not os.path.exists(file_dir):
+        os.makedirs(file_dir)
     try:
         # 异步保存文件
         async with aiofiles.open(
-            os.path.join(settings.BASE_DIR, settings.MEDIA_ROOT, file_path), "wb"
+            os.path.join(settings.BASE_DIR, file_dir, file_name), "wb"
         ) as afp:
             await afp.write(await file.read())
         asyncio.create_task(wait_remove_file(project_id, file_id))
