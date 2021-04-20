@@ -1,0 +1,10 @@
+version: '3'
+services:
+  file_cache:
+    build: .
+    env_file:
+      - .env
+    ports:
+      - '8000:8000'
+    image: file_cache
+    command: uvicorn file_cache.app:app --port 8000 --host 0.0.0.0
