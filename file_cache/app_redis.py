@@ -8,9 +8,6 @@ try:
     asyncio.set_event_loop_policy(uvloop.EventLoopPolicy())
 except:
     pass
-if settings.CACHE == "MEMORY":
-    from file_cache.memory_cache import default_file_path, get_file_path
-
 app = FastAPI(title="文件缓存系统")
 
 

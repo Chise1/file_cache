@@ -9,7 +9,7 @@ dotenv.load_dotenv()
 # from sentry_sdk.integrations.redis import RedisIntegration
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-EXPIRE_TIME = datetime.timedelta(seconds=30)
+EXPIRE_TIME = 30  # 单位是秒
 DEBUG = os.getenv("DEBUG") == "True"
 MEDIA_ROOT = "media"
 PROJECT_ID = [

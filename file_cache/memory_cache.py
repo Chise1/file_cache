@@ -1,6 +1,3 @@
-"""
-生成文件路径的方法
-"""
 import asyncio
 import datetime
 import os
@@ -29,7 +26,7 @@ p.start()
 
 
 async def wait_remove_file(project_id, file_id):
-    await asyncio.sleep(int(settings.EXPIRE_TIME.seconds))
+    await asyncio.sleep(int(settings.EXPIRE_TIME))
     file_path = PROJECT_FILE_DICT[project_id].pop(file_id)
     if file_path:
         queue.put(file_path)
